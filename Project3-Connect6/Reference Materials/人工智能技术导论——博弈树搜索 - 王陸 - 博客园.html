@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<!-- saved from url=(0047)https://www.cnblogs.com/wkfvawl/p/12066647.html -->
+<html lang="zh-cn" style="--TextColor1:#4d4d4d; --TextColor2:#5f5f6b; --TextColor3:#97979f; --DividColor:#e7eaf0; --BackgroundColor:#f4f6fa; --BlockColor:#ffffff;"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="origin-when-crossorigin">
+    <meta name="description" content="我在之前整理过一篇博客关于博弈论和纳什均衡的几个例子https://www.cnblogs.com/wkfvawl/p/11725263.html 这里来介绍博弈树搜索。 一、博弈树的概念 在博弈过程">
+    <meta property="og:description" content="我在之前整理过一篇博客关于博弈论和纳什均衡的几个例子https://www.cnblogs.com/wkfvawl/p/11725263.html 这里来介绍博弈树搜索。 一、博弈树的概念 在博弈过程">
+    <meta http-equiv="Cache-Control" content="no-transform">
+    <meta http-equiv="Cache-Control" content="no-siteapp">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>人工智能技术导论——博弈树搜索 - 王陸 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="https://common.cnblogs.com/favicon.svg" type="image/svg+xml">
+    
+    <link rel="stylesheet" href="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/blog-common.min.css">
+    
+    <link type="text/css" rel="stylesheet" href="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/custom.css">
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/bundle-custom-mobile.min.css">
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/wkfvawl/rss">
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/wkfvawl/rsd.xml">
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/wkfvawl/wlwmanifest.xml">
+    <script src="https://www.googletagservices.com/activeview/js/current/osd.js"></script><script async="" src="https://www.google-analytics.com/analytics.js"></script><script>
+        var currentBlogId = 421388;
+        var currentBlogApp = 'wkfvawl';
+        var cb_enable_mathjax = true;
+        var isLogined = true;
+        var isBlogOwner = false;
+        var skinName = 'Custom';
+        var visitorUserId = 'cfe49caf-3837-4ca6-a0cd-08d8ae5f7194';
+    </script>
+        <script>
+            var currentPostDateAdded = '2019-12-19 11:16';
+        </script>
+    <script src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/jquery-2.2.0.min.js.下载"></script>
+    <script src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/blog-common.min.js.下载"></script><style type="text/css">.medium-zoom-overlay{position:fixed;top:0;right:0;bottom:0;left:0;opacity:0;transition:opacity .3s;will-change:opacity}.medium-zoom--opened .medium-zoom-overlay{cursor:pointer;cursor:zoom-out;opacity:1}.medium-zoom-image{cursor:pointer;cursor:zoom-in;transition:transform .3s cubic-bezier(.2,0,.2,1)!important}.medium-zoom-image--hidden{visibility:hidden}.medium-zoom-image--opened{position:relative;cursor:pointer;cursor:zoom-out;will-change:transform}</style>
+    <script type="text/x-mathjax-config;executed=true">
+        MathJax.Hub.Config({
+        tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']], processClass: 'math', processEscapes: true },
+        TeX: {
+        equationNumbers: { autoNumber: ['AMS'], useLabelIds: true },
+        extensions: ['extpfeil.js', 'mediawiki-texvc.js'],
+        Macros: {bm: "\\boldsymbol"}
+        },
+        'HTML-CSS': { linebreaks: { automatic: true } },
+        SVG: { linebreaks: { automatic: true } }
+        });
+    </script>
+    <script src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/MathJax.js.下载"></script>
+    
+<style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 2px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 2px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: 1em}
+.MathJax_MenuRadioCheck.RTL {right: 1em; left: auto}
+.MathJax_MenuLabel {padding: 2px 2em 4px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #CCCCCC; margin: 4px 1px 0px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: Highlight; color: HighlightText}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover, .MJXp-munder {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > *, .MJXp-munder > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style><meta http-equiv="origin-trial" content="A+b/H0b8RPXNaJgaNFpO0YOFuGK6myDQXlwnJB3SwzvNMfcndat4DZYMrP4ClJIzYWo3/yP2S+8FTZ/lpqbPAAEAAABueyJvcmlnaW4iOiJodHRwczovL2ltYXNkay5nb29nbGVhcGlzLmNvbTo0NDMiLCJmZWF0dXJlIjoiVHJ1c3RUb2tlbnMiLCJleHBpcnkiOjE2MjYyMjA3OTksImlzVGhpcmRQYXJ0eSI6dHJ1ZX0="><meta http-equiv="origin-trial" content="A9ZgbRtm4pU3oZiuNzOsKcC8ppFSZdcjP2qYcdQrFKVzkmiWH1kdYY1Mi9x7G8+PS8HV9Ha9Cz0gaMdKsiVZIgMAAAB7eyJvcmlnaW4iOiJodHRwczovL2RvdWJsZWNsaWNrLm5ldDo0NDMiLCJmZWF0dXJlIjoiVHJ1c3RUb2tlbnMiLCJleHBpcnkiOjE2MjYyMjA3OTksImlzU3ViZG9tYWluIjp0cnVlLCJpc1RoaXJkUGFydHkiOnRydWV9"><meta http-equiv="origin-trial" content="AxL6oBxcpn5rQDPKSAs+d0oxNyJYq2/4esBUh3Yx5z8QfcLu+AU8iFCXYRcr/CEEfDnkxxLTsvXPJFQBxHfvkgMAAACBeyJvcmlnaW4iOiJodHRwczovL2dvb2dsZXRhZ3NlcnZpY2VzLmNvbTo0NDMiLCJmZWF0dXJlIjoiVHJ1c3RUb2tlbnMiLCJleHBpcnkiOjE2MjYyMjA3OTksImlzU3ViZG9tYWluIjp0cnVlLCJpc1RoaXJkUGFydHkiOnRydWV9"><meta http-equiv="origin-trial" content="A9KPtG5kl3oLTk21xqynDPGQ5t18bSOpwt0w6kGa6dEWbuwjpffmdUpR3W+faZDubGT+KIk2do0BX2ca16x8qAcAAACBeyJvcmlnaW4iOiJodHRwczovL2dvb2dsZXN5bmRpY2F0aW9uLmNvbTo0NDMiLCJmZWF0dXJlIjoiVHJ1c3RUb2tlbnMiLCJleHBpcnkiOjE2MjYyMjA3OTksImlzU3ViZG9tYWluIjp0cnVlLCJpc1RoaXJkUGFydHkiOnRydWV9"><meta http-equiv="origin-trial" content="A3HucHUo1oW9s+9kIKz8mLkbcmdaj5lxt3eiIMp1Nh49dkkBlg1Fhg4Fd/r0vL69mRRA36YutI9P/lJUfL8csQoAAACFeyJvcmlnaW4iOiJodHRwczovL2RvdWJsZWNsaWNrLm5ldDo0NDMiLCJmZWF0dXJlIjoiQ29udmVyc2lvbk1lYXN1cmVtZW50IiwiZXhwaXJ5IjoxNjI2MjIwNzk5LCJpc1N1YmRvbWFpbiI6dHJ1ZSwiaXNUaGlyZFBhcnR5Ijp0cnVlfQ=="><meta http-equiv="origin-trial" content="A0OysezhLoCRYomumeYlubLurZTCmsjTb087OvtCy95jNM65cfEsbajrJnhaGwiTxhz38ZZbm+UhUwQuXfVPTg0AAACLeyJvcmlnaW4iOiJodHRwczovL2dvb2dsZXN5bmRpY2F0aW9uLmNvbTo0NDMiLCJmZWF0dXJlIjoiQ29udmVyc2lvbk1lYXN1cmVtZW50IiwiZXhwaXJ5IjoxNjI2MjIwNzk5LCJpc1N1YmRvbWFpbiI6dHJ1ZSwiaXNUaGlyZFBhcnR5Ijp0cnVlfQ=="><meta http-equiv="origin-trial" content="AxoOxdZQmIoA1WeAPDixRAeWDdgs7ZtVFfH2y19ziTgD1iaHE5ZGz2UdSjubkWvob9C5PrjUfkWi4ZSLgWk3Xg8AAACLeyJvcmlnaW4iOiJodHRwczovL2dvb2dsZXRhZ3NlcnZpY2VzLmNvbTo0NDMiLCJmZWF0dXJlIjoiQ29udmVyc2lvbk1lYXN1cmVtZW50IiwiZXhwaXJ5IjoxNjI2MjIwNzk5LCJpc1N1YmRvbWFpbiI6dHJ1ZSwiaXNUaGlyZFBhcnR5Ijp0cnVlfQ=="><meta http-equiv="origin-trial" content="A7+rMYR5onPnACrz+niKSeFdH3xw1IyHo2AZSHmxrofRk9w4HcQPMYcpBUKu6OQ6zsdxf4m/vqa6tG6Na4OLpAQAAAB4eyJvcmlnaW4iOiJodHRwczovL2ltYXNkay5nb29nbGVhcGlzLmNvbTo0NDMiLCJmZWF0dXJlIjoiQ29udmVyc2lvbk1lYXN1cmVtZW50IiwiZXhwaXJ5IjoxNjI2MjIwNzk5LCJpc1RoaXJkUGFydHkiOnRydWV9"><meta http-equiv="origin-trial" content="AwfG8hAcHnPa/kJ1Co0EvG/K0F9l1s2JZGiDLt2mhC3QI5Fh4qmsmSwrWObZFbRC9ieDaSLU6lHRxhGUF/i9sgoAAACBeyJvcmlnaW4iOiJodHRwczovL2RvdWJsZWNsaWNrLm5ldDo0NDMiLCJmZWF0dXJlIjoiSW50ZXJlc3RDb2hvcnRBUEkiLCJleHBpcnkiOjE2MjYyMjA3OTksImlzU3ViZG9tYWluIjp0cnVlLCJpc1RoaXJkUGFydHkiOnRydWV9"><meta http-equiv="origin-trial" content="AwQ7dCmHkvR6FuOFxAuNnktYSQrGbL4dF+eBkrwNLALc69Wr//PnO1yzns3pjUoCaYbKHtVcnng2hU+8OUm0PAYAAACHeyJvcmlnaW4iOiJodHRwczovL2dvb2dsZXN5bmRpY2F0aW9uLmNvbTo0NDMiLCJmZWF0dXJlIjoiSW50ZXJlc3RDb2hvcnRBUEkiLCJleHBpcnkiOjE2MjYyMjA3OTksImlzU3ViZG9tYWluIjp0cnVlLCJpc1RoaXJkUGFydHkiOnRydWV9"><meta http-equiv="origin-trial" content="AysVDPGQTLD/Scn78x4mLwB1tMfje5jwUpAAzGRpWsr1NzoN7MTFhT3ClmImi2svDZA7V6nWGIV8YTPsSRTe0wYAAACHeyJvcmlnaW4iOiJodHRwczovL2dvb2dsZXRhZ3NlcnZpY2VzLmNvbTo0NDMiLCJmZWF0dXJlIjoiSW50ZXJlc3RDb2hvcnRBUEkiLCJleHBpcnkiOjE2MjYyMjA3OTksImlzU3ViZG9tYWluIjp0cnVlLCJpc1RoaXJkUGFydHkiOnRydWV9"><script src="https://securepubads.g.doubleclick.net/gpt/pubads_impl_2021051101.js?31061141" async=""></script><link rel="shortcut icon" type="image/x-icon" href="https://pic.cnblogs.com/avatar/1358881/20200325221352.png"><link rel="preload" href="https://adservice.google.com/adsid/integrator.js?domain=www.cnblogs.com" as="script"><script type="text/javascript" src="https://adservice.google.com/adsid/integrator.js?domain=www.cnblogs.com"></script><link rel="prefetch" href="https://9884c4b285b36ebeb214f379db5319f5.safeframe.googlesyndication.com/safeframe/1-0-38/html/container.html"><link rel="prefetch" href="https://tpc.googlesyndication.com/safeframe/1-0-38/html/container.html"></head>
+<body class="no-navbar"><div id="MathJax_Message" style="display: none;"></div>
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc navbar-custom">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/logo.svg" alt="博客园Logo"></a></li>
+                <li><a href="https://www.cnblogs.com/" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;skin-navbar-sitehome&#39;)">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;skin-navbar-news&#39;)">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;skin-navbar-q&#39;)">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;skin-navbar-brands&#39;)">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;skin-navbar-ing&#39;)">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;skin-navbar-edu&#39;)">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3">
+                        <button type="submit" id="zzk_search_button">
+                            <img src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/search.svg" alt="搜索">
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔" style="display: inline;">
+                        <img id="new_post_icon" class="navbar-icon" src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/newpost.svg" alt="写随笔">
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://www.cnblogs.com/hibna-blog/" alt="我的博客" title="我的博客" style="display: inline;">
+                        <img id="myblog_icon" class="navbar-icon" src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/myblog.svg" alt="我的博客">
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息" style="display: inline;">
+                        <img id="msg_icon" class="navbar-icon" src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/message.svg" alt="短消息">
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown" style="display: block;">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/u/hibna-blog">
+                            <img id="user_icon" class="navbar-avatar" src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/20210106174542.png" alt="用户头像">
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://www.cnblogs.com/hibna-blog/">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/lite-mode-check.svg" class="hide" style="display: none;"><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/" style="display: none;">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()" style="display: none;">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    
+    <!--done-->
+<div id="home">
+<div id="header" class="header-hidden"><a href="https://www.cnblogs.com/wkfvawl/p/12066647.html#navigator" class="toNav hidden"></a>
+	<div id="blogTitle" class="hidden">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/wkfvawl/"><img id="blogLogo" src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/logo.gif" alt="返回主页"></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/wkfvawl/"> 王陸 </a>
+</h1>
+<h2>人一生最辉煌的一天，是从绝望和悲叹中产生人生挑战的欲望，并勇敢的迈向挑战的一天！ </h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/wkfvawl/">
+首页</a>
+</li>
+<li>
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E7%8E%8B%E9%99%B8">
+联系</a></li>
+<li>
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/wkfvawl/rss/">订阅</a>
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+<li><a id="blog_nav_cnblogs" class="menu" href="https://home.cnblogs.com/">园子</a></li><li><a id="blog_nav_maintain" class="menu" href="https://www.cnblogs.com/wkfvawl/p/9365052.html">维护</a></li><li><a id="blog_nav_ing" class="menu" href="https://ing.cnblogs.com/">闪存</a></li><li><a id="blog_nav_music" class="menu" href="https://i.cnblogs.com/diaries">日记</a></li></ul>
+
+
+		<div class="blogStats">
+			<span id="stats_post_count">随笔 - 691&nbsp; </span>
+<span id="stats_article_count">文章 - 0&nbsp; </span>
+<span id="stats-comment_count">评论 - 482&nbsp; </span>
+<span id="stats-total-view-count">阅读 - 
+<span title="总阅读数: 1817289">
+181万</span></span>
+
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent"><div id="newscard"><div class="newstext"> <i class="fa fa-volume-up fa-2x" aria-hidden="true"></i>立个flag，五月份回顾完java基础！  </div></div>
+	<div class="forFlow">
+		<div id="post_detail">
+    <!--done-->
+    <div id="topics">
+        <div class="post">
+            <h1 class="postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/wkfvawl/p/12066647.html">
+    <span>人工智能技术导论——博弈树搜索</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                <div id="cnblogs_post_body" class="blogpost-body blogpost-body-html">
+<p>我在之前整理过一篇博客关于博弈论和纳什均衡的几个例子<a href="https://www.cnblogs.com/wkfvawl/p/11725263.html" target="_blank">https://www.cnblogs.com/wkfvawl/p/11725263.html</a></p>
+<p>这里来介绍博弈树搜索。</p>
+<h2 offset="1" id="scroller-0">一、博弈树的概念</h2>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 在博弈过程中, 任何一方都希望自己取得胜利。因此,当某一方当前有多个行动方案可供选择时, 他总是挑选对自己最为有利而对对方最为不利的那个行动方案。 此时,如果我们<strong>站在A方的立场上,则可供A方选择的若干行动方案之间是“或”关系</strong>, 因为主动权操在A方手里,他或者选择这个行动方案, 或者选择另一个行动方案, 完全由A方自己决定。当A方选取任一方案走了一步后,<strong>B方也有若干个可供选择的行动方案, 此时这些行动方案对A方来说它们之间则是“与”关系</strong>,因为这时主动权操在B方手里,这些可供选择的行动方案中的任何一个都可能被B方选中, A方必须应付每一种情况的发生。 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 这样,如果站在某一方(如A方,即在A要取胜的意义下), 把上述博弈过程用图表示出来, 则得到的是一棵“与或树”。 描述博弈过程的与或树称为博弈树,它有如下特点： &nbsp;<br>&nbsp;&nbsp; 　 (1) 博弈的初始格局是初始节点。 &nbsp;<br>&nbsp;&nbsp; 　 (2) 在博弈树中, “或”节点和“与”节点是逐层交替出现的。<strong><span style="color: rgba(51, 102, 255, 1)">自己一方扩展的节点之间是“或”关系, 对方扩展的节点之间是“与”关系。双方轮流地扩展节点。</span></strong> &nbsp;<br>&nbsp;&nbsp; 　 (3) 所有自己一方获胜的终局都是本原问题, 相应的节点是可解节点；所有使对方获胜的终局都是不可解节点。</p>
+<h2 id="scroller-1" offset="1">二、极小极大值分析法</h2>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 在二人博弈问题中,为了从众多可供选择的行动方案中选出一个对自己最为有利的行动方案, 就需要对当前的情况以及将要发生的情况进行分析,从中选出最优的走步。最常使用的分析方法是极小极大分析法。 其基本思想是： &nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (1) 设博弈的双方中一方为A,另一方为B。然后为其中的一方(例如A)寻找一个最优行动方案。 <br>　　(2) 为了找到当前的最优行动方案, 需要对各个可能的方案所产生的后果进行比较。具体地说, 就是要考虑每一方案实施后对方可能采取的所有行动, 并计算可能的得分。 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (3) 为计算得分,需要根据问题的特性信息定义一个估价函数, 用来估算当前博弈树端节点的得分。此时估算出来的得分称为静态估值。 &nbsp;<br>&nbsp;&nbsp; &nbsp; &nbsp; (4) 当端节点的估值计算出来后, 再推算出父节点的得分, 推算的方法是：<strong><span style="color: rgba(51, 102, 255, 1)">对“或”节点, 选其子节点中一个最大的得分作为父节点的得分,这是为了使自己在可供选择的方案中选一个对自己最有利的方案；对“与”节点, 选其子节点中一个最小的得分作为父节点的得分,这是为了立足于最坏的情况</span></strong>。<strong><span style="color: rgba(0, 0, 0, 1)">这样计算出的父节点的得分称为倒推值。 &nbsp;</span></strong><br>&nbsp;&nbsp; &nbsp;&nbsp; (5) 如果一个行动方案能获得较大的倒推值, 则它就是当前最好的行动方案。 <br><img src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/1358881-20191218163659477-326368179.png" alt="" class="medium-zoom-image"></p>
+<p>倒推值的计算 </p>
+<p><br>&nbsp;&nbsp;&nbsp;&nbsp; 在博弈问题中,每一个格局可供选择的行动方案都有很多, 因此会生成十分庞大的博弈树。据统计,西洋跳棋完整的博弈树约有10<sup>40</sup>个节点。试图利用完整的博弈树来进行极小极大分析是困难的。<strong>可行的办法是只生成一定深度的博弈树, 然后进行极小极大分析,找出当前最好的行动方案</strong>。在此之后, 再在已选定的分支上扩展一定深度, 再选最好的行动方案。如此进行下去, 直到取得胜败的结果为止。至于每次生成博弈树的深度, 当然是越大越好, 但由于受到计算机存储空间的限制, 只好根据实际情况而定。 <br><br>例 一字棋游戏。设有如图(a)所示的九个空格, 由A, B二人对弈, 轮到谁走棋谁就往空格上放一只自己的棋子, 谁先使自己的棋子构成“三子成一线”谁就取得了胜利。 <br>&nbsp;<img src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/1358881-20191218163943917-1483439613.png" alt=""></p>
+<p style="text-align: center">一字棋 </p>
+<p>&nbsp;设A的棋子用“a”表示, B的棋子用“b”表示。为了不致于生成太大的博弈树,假设每次仅扩展两层。估价函数定义如下：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>&nbsp;&nbsp;&nbsp; 　设棋局为P,估价函数为e(P)。&nbsp;&nbsp; 　<br>&nbsp;&nbsp;&nbsp; 　(1) 若P是A必胜的棋局, 则e(P)=+∞。 &nbsp;<br>&nbsp;&nbsp; 　 (2) 若P是B必胜的棋局, 则e(P)=-∞。 &nbsp;<br>&nbsp;&nbsp;&nbsp; 　(3) 若P是胜负未定的棋局, 则 e(P)=e(+P)-e(-P) <br>其中<strong><span style="color: rgba(51, 102, 255, 1)">e(+P)表示棋局P上有可能使a成为三子成一线的数目</span></strong>；&nbsp;&nbsp; </p>
+<p><strong><span style="color: rgba(51, 102, 255, 1)">e(-P)表示棋局P上有可能使b成为三子成一线的数目</span></strong>。</p>
+<p>例如, 对于图(b)所示的棋局, 则 &nbsp;</p>
+<p><img src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/1358881-20191219111417240-926689125.png" alt=""></p>
+<p>&nbsp;</p>
+<p>按照棋盘上红色连线安放棋子a使得三子成一线，共6条连线。</p>
+<p>按照棋盘上蓝色连线安放棋子b使得三子成一线，共4条连线。<br>e(P)=6-4=2</p>
+<p>&nbsp;</p>
+<p>另外,我们假定具有对称性的两个棋局算作一个棋局。还假定A先走棋, 我们站在A的立场上。 &nbsp;<br>下图给出了A的第一着走棋生成的博弈树。图中节点旁的数字分别表示相应节点的静态估值或倒推值。由图可以看出, 对于A来说最好的一着棋是S3,因为S3比S1和S2有较大的倒推值。 </p>
+<p><img src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/1358881-20191218164721659-960693117.png" alt=""></p>
+<p style="text-align: center">&nbsp;一字棋极小极大搜索 </p>
+<p>在A走S3这一着棋后,B的最优选择是S4, 因为这一着棋的静态估值较小,对A不利。不管B选择S4或S5,A都要再次运用极小极大分析法产生深度为2的博弈树,以决定下一步应该如何走棋, 其过程与上面类似, 不再重复。 </p>
+<h2 id="scroller-2" offset="1">三、α-β剪枝技术</h2>
+<p>&nbsp;<img src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/1358881-20191218175119177-795920365.gif" alt=""></p>
+<p>&nbsp;上述的极小极大分析法, 实际是先生成一棵博弈树,然后再计算其倒推值。这样做的缺点是效率较低。于是,人们又在极小极大分析法的基础上,提出了α-β剪枝技术。 <br>&nbsp;&nbsp; 　 这一技术的基本思想是,边生成博弈树边计算评估各节点的倒推值, 并且根据评估出的倒推值范围,及时停止扩展那些已无必要再扩展的子节点, 即相当于剪去了博弈树上的一些分枝, 从而节约了机器开销, 提高了搜索效率。具体的剪枝方法如下: &nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ (1) 对于一个与节点MIN, 
+若能估计出其倒推值的上确界β,并且这个β值不大于MIN的父节点(一定是或节点)的估计倒推值的下确界α,即α≥β, 
+则就不必再扩展该MIN节点的其余子节点了(因为这些节点的估值对MIN父节点的倒推值已无任何影响了)。这一过程称为α剪枝。 <br>　　(2) 
+对于一个或节点MAX, 若能估计出其倒推值的下确界α, 并且这个α值不小于MAX的父节点(一定是与节点)的估计倒推值的上确界β,&nbsp; 
+即α≥β,则就不必再扩展该MAX节点的其余子节点了(因为这些节点的估值对MAX父节点的倒推值已无任何影响了)。 这一过程称为β剪枝。 <br><br>认真品味上面的两句规则，下面给出一个具体的 α-β剪枝的实例。<br><img src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/1358881-20191219095105661-111597771.gif" alt=""></p>
+<p>使用ScreenToGif 截的PPT图，关于ScreenToGif的使用说明参见<a href="https://www.cnblogs.com/wkfvawl/p/11625823.html" target="_blank">https://www.cnblogs.com/wkfvawl/p/11625823.html</a></p>
+<p>这里来说一下剪枝过程，F下的第一个节点是K，其值为4，这时作为MIN节点的F上确界β为4，F下的第二个节点L和第三个节点M的值都拿来比较，但都大于4，所以F节点MIN值还是4。这时MAX节点C的下确界α为4，并将α传递给MIN节点G。</p>
+<p>G下的第一个节点为1，此时作为MIN节点G的上确界β为1，留意到此时 G的 α=4 ＞ β，所以无需再探索 G的剩余子节点，把未探索的子节点通过α剪枝剪掉。</p>
+<p>这里C的父节点A是一个MIN节点，A的估计上确界β便是4。接着我们对A的右子树进行查找，并将β传递下去。</p>
+<p>对于MIN节点H，其下的第一个子节点P值为5，大于4，因而接着比较第二个子节点Q值为8，也大于4，因而H节点MIN值的上确界β便是5，P的父节点D是一个MAX节点，因而此时D的下确界α值为5。</p>
+<p>由于D的父节点A是一个MIN节点，A的估计倒推值的上确界β为4，小于D的下确界5，因而就不必去扩展MAX节点D的其他子节点了，进行了β剪枝。</p>
+<p>这是就可以确定节点A的父亲节点S0，其为MAX节点的下确界α为4，这就对S0右子树进行查找。并直接将下确解α沿着S0-&gt;B-&gt;E-&gt;I传递，深入到I。</p>
+<p>对于MIN节点I，其下的第一个子节点R值为0，这时作为MIN节点I的上确界β为0，留意到此时 I 的 α=4 ＞ β，所以无需再探索 I 的剩余子节点，把未探索的子节点通过α剪枝剪掉。</p>
+<p>I的父节点是一个MAX节点，更新其父节点E的下确界α为0。将E的α传递给J。</p>
+<p>这时对于MIN节点J，其下的第一个子节点S值为-6，这时作为MIN节点I的上确界β为-6，留意到此时 J 的 α=0 ＞ β，所以无需再探索 J的剩余子节点，把未探索的子节点通过α剪枝剪掉。</p>
+<p>这时确定了E，E的父亲节点B是一个MIN节点，通过E其上确界β更新为0，但E的父亲节点的α为4，α=4 ＞ β，所以无需再探索 B 的剩余子节点，把未探索的子节点通过α剪枝剪掉。</p>
+<p>最终确定S0，搜索完成。</p>
+<p><img src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/1358881-20191219110009903-774228249.png" alt=""></p>
+<p>&nbsp;</p>
+<p>关于α-β剪枝的过程，还想要了解一个，可以参考这篇博客</p>
+<p><a href="https://www.7forz.com/3211/" target="_blank">https://www.7forz.com/3211/</a></p>
+<p><a href="http://web.cs.ucla.edu/~rosen/161/notes/alphabeta.html" target="_blank">http://web.cs.ucla.edu/~rosen/161/notes/alphabeta.html</a></p>
+<p>一些碎碎念，今天给同学讲α-β剪枝，把他弄迷糊了，后来我想可能还是太官方了，这种剪枝策略其本质思想是朴素的，就是在确定父亲节点的一个上确界或下确界之后，如果子节点不在该外围内就不去探索了，这就是剪枝。</p>
+</div>
+<div id="MySignature" style="display: block;"><div>作者：<a href="https://www.cnblogs.com/wkfvawl/">王陸</a></div>
+<div>出处：<a href="https://www.cnblogs.com/wkfvawl/">https://www.cnblogs.com/wkfvawl/
+</a></div>
+<p>-------------------------------------------</p>
+<p>个性签名：罔谈彼短，靡持己长。做一个谦逊爱学的人！</p>
+<p>本站使用「署名 4.0 国际」创作共享协议，转载请在文章明显位置注明作者及出处。鉴于博主处于考研复习期间，有什么问题请在评论区中提出，博主尽可能当天回复，加微信好友请注明原因</p>
+<p></p></div>
+<div class="clear"></div>
+<div id="blog_post_info_block"><div id="BlogPostCategory">
+    分类: 
+            <a href="https://www.cnblogs.com/wkfvawl/category/1553757.html" target="_blank">人工智能技术导论</a></div>
+
+
+    <div id="blog_post_info">
+<div id="green_channel">
+        <a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(12066647,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+        <a id="green_channel_follow" onclick="follow(&#39;b211221e-9163-4e39-a89b-08d5866282ce&#39;);" href="javascript:void(0);">关注我</a>
+    <a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a>
+    <a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/icon_weibo_24.png" alt=""></a>
+    <a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+    <div id="author_profile_info" class="author_profile_info">
+            <a href="https://home.cnblogs.com/u/wkfvawl/" target="_blank"><img src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/20200325221352.png" class="author_avatar" alt=""></a>
+        <div id="author_profile_detail" class="author_profile_info">
+            <a href="https://home.cnblogs.com/u/wkfvawl/">王陸</a><br>
+            <a href="https://home.cnblogs.com/u/wkfvawl/followees/">关注 - 131</a><br>
+            <a href="https://home.cnblogs.com/u/wkfvawl/followers/">粉丝 - 824</a>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div id="author_profile_honor"></div>
+    <div id="author_profile_follow">
+                <a href="javascript:void(0);" onclick="follow(&#39;b211221e-9163-4e39-a89b-08d5866282ce&#39;);return false;">+加关注</a>
+    </div>
+</div>
+<div id="div_digg">
+    <div class="diggit" onclick="votePost(12066647,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">2</span>
+    </div>
+    <div class="buryit" onclick="votePost(12066647,&#39;Bury&#39;)">
+        <span class="burynum" id="bury_count">0</span>
+    </div>
+    <div class="clear"></div>
+    <div class="diggword" id="digg_tips">
+    </div>
+</div>
+
+<script type="text/javascript">
+    currentDiggType = 0;
+</script></div>
+    <div class="clear"></div>
+    <div id="post_next_prev">
+
+    <a href="https://www.cnblogs.com/wkfvawl/p/12063547.html" class="p_n_p_prefix">« </a> 上一篇：    <a href="https://www.cnblogs.com/wkfvawl/p/12063547.html" title="发布于 2019-12-18 20:38">人工智能技术导论——基于产生式规则的机器推理</a>
+    <br>
+    <a href="https://www.cnblogs.com/wkfvawl/p/12066862.html" class="p_n_p_prefix">» </a> 下一篇：    <a href="https://www.cnblogs.com/wkfvawl/p/12066862.html" title="发布于 2019-12-19 11:47">人工智能技术导论——几种结构化知识表示及推理过程</a>
+
+</div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2019-12-19 11:16</span>&nbsp;
+<a href="https://www.cnblogs.com/wkfvawl/">王陸</a>&nbsp;
+阅读(<span id="post_view_count">1925</span>)&nbsp;
+评论(<span id="post_comment_count">2</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=12066647" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(12066647);return false;">收藏</a></div>
+        </div>
+	    
+	    
+    </div><!--end: topics 文章、评论容器-->
+</div>
+<script src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/highlight.min.js.下载"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 421388, cb_blogApp = 'wkfvawl', cb_blogUserGuid = 'b211221e-9163-4e39-a89b-08d5866282ce';
+    var cb_entryId = 12066647, cb_entryCreatedDate = '2019-12-19 11:16', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+<a name="!comments"></a>
+<div id="blog-comments-placeholder">
+
+<div id="comment_pager_top">
+    
+</div>
+
+<br>
+<div class="feedback_area_title">评论列表</div>
+<div class="feedbackNoItems">
+    <div class="feedbackNoItems"></div>
+</div>
+    <div class="feedbackItem">
+        <div class="feedbackListSubtitle">
+            <div class="feedbackManage">
+                &nbsp;&nbsp;
+
+<span class="comment_actions">
+    <a href="javascript:void(0);" onclick="return ReplyComment(4463307, &#39;QfxE1UO/0LV2hkELSBJqJnQi8j9+dszMTtgLHKT8IapMHSRyeLKbfw==&#39;)">
+        回复
+    </a>
+    <a href="javascript:void(0);" onclick="return QuoteComment(4463307, &#39;QfxE1UO/0LV2hkELSBJqJnQi8j9+dszMTtgLHKT8IapMHSRyeLKbfw==&#39;)">
+        引用
+    </a>
+    
+    
+</span>
+
+
+            </div>
+            
+<a href="https://www.cnblogs.com/wkfvawl/p/12066647.html#4463307" class="layer">#1楼</a>
+<a name="4463307" id="comment_anchor_4463307"></a>
+ 
+<span class="comment_date">2019-12-19 11:38</span>
+
+ 
+        <a id="a_comment_author_4463307" href="https://www.cnblogs.com/tangyanzhi1111/" target="_blank">冬夏与春秋</a>
+
+        </div>
+        <div class="feedbackCon">
+            
+<img src="http://pic.cnblogs.com/avatar/simple_avatar.gif" style="float: left; width: 50px; height: 50px; margin: 10px 10px 10px 0px; border-radius: 50%;" class="comment_avatar"><div id="comment_body_4463307" data-format-type="Ubb" class="blog_comment_body cnblogs-ubb">
+    你这个 签名很有个性啊<br><br>       小伙加油
+</div>
+        <div class="comment_vote">
+            <span class="comment_error" style="color: red"></span>
+            <a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(4463307, &#39;Digg&#39;, this.parentElement, false);">
+                支持(0)
+            </a>
+            <a href="javascript:void(0);" class="comment_burry" onclick="return voteComment(4463307, &#39;Bury&#39;, this.parentElement, false);">
+                反对(0)
+            </a>
+        </div>
+        
+
+        </div>
+    </div>
+    <div class="feedbackItem">
+        <div class="feedbackListSubtitle">
+            <div class="feedbackManage">
+                &nbsp;&nbsp;
+
+<span class="comment_actions">
+    <a href="javascript:void(0);" onclick="return ReplyComment(4463313, &#39;uH2wPZfcJkTEDWkhCJmz844tqFyfTNCTDVEeLvRiG5OXr2gHEcTCMw==&#39;)">
+        回复
+    </a>
+    <a href="javascript:void(0);" onclick="return QuoteComment(4463313, &#39;uH2wPZfcJkTEDWkhCJmz844tqFyfTNCTDVEeLvRiG5OXr2gHEcTCMw==&#39;)">
+        引用
+    </a>
+    
+    
+</span>
+
+
+            </div>
+            
+<a href="https://www.cnblogs.com/wkfvawl/p/12066647.html#4463313" class="layer">#2楼</a>
+<a name="4463313" id="comment_anchor_4463313"></a>
+[<span class="louzhu">楼主</span>]    <span id="comment-maxId" style="display: none">4463313</span>
+    <span id="comment-maxDate" style="display: none">2019/12/19 上午11:43:44</span>
+ 
+<span class="comment_date">2019-12-19 11:43</span>
+
+ 
+        <a id="a_comment_author_4463313" href="https://www.cnblogs.com/wkfvawl/" target="_blank">王陸</a>
+
+        </div>
+        <div class="feedbackCon">
+            
+<img src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/20200325221352.png" style="float: left; width: 50px; height: 50px; margin: 10px 10px 10px 0px; border-radius: 50%;" class="comment_avatar"><div id="comment_body_4463313" data-format-type="Ubb" class="blog_comment_body cnblogs-ubb">
+    <a href="https://www.cnblogs.com/wkfvawl/p/12066647.html#4463307" title="查看所回复的评论" onclick="commentManager.renderComments(0,50,4463307);">@</a>
+破帽遮颜过闹市<br>哈哈，这是轻小说男主的一句独白
+</div>
+        <div class="comment_vote">
+            <span class="comment_error" style="color: red"></span>
+            <a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(4463313, &#39;Digg&#39;, this.parentElement, false);">
+                支持(0)
+            </a>
+            <a href="javascript:void(0);" class="comment_burry" onclick="return voteComment(4463313, &#39;Bury&#39;, this.parentElement, false);">
+                反对(0)
+            </a>
+        </div>
+        <span id="comment_4463313_avatar" style="display:none">
+            https://pic.cnblogs.com/face/1358881/20200325221352.png
+        </span>
+
+        </div>
+    </div>
+
+<div id="comment_pager_bottom">
+    
+</div>
+
+
+</div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="https://www.cnblogs.com/wkfvawl/p/12066647.html#" onclick="return RefreshPage();">刷新页面</a><a href="https://www.cnblogs.com/wkfvawl/p/12066647.html#top">返回顶部</a></div>
+    <div id="comment_form_container" style="visibility: visible;"><script type="text/javascript" src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/mention.min.js.下载"></script>
+<div id="commentform_title">发表评论</div>
+<span id="tip_comment" style="color:Red"></span>
+<div class="commentbox_main comment_textarea">
+    <div class="commentbox_title">
+        <div class="commentbox_title_left">
+            <span id="btn_edit_comment" class="commentbox_tab active" title="编辑评论">编辑</span>
+            <span id="btn_preview_comment" class="commentbox_tab" title="Markdown 预览">预览</span>
+        </div>
+        <div class="commentbox_title_right">
+            <span id="ubb_bold" class="comment_icon" alt="粗体" title="添加粗体(Ctrl + B)">
+                <svg class="comment_svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <g fill-rule="evenodd">
+                        <path d="m13.221 19c1.4414 0 2.5793-0.27451 3.3759-0.82353 0.92931-0.66667 1.4034-1.7059 1.4034-3.1176 0-0.94118-0.22759-1.7059-0.66379-2.2549-0.45517-0.56863-1.119-0.94118-2.0103-1.1176 0.68276-0.27451 1.1948-0.64706 1.5552-1.1569 0.36034-0.54902 0.55-1.2157 0.55-2 0-1.0588-0.36034-1.902-1.0621-2.5294-0.75862-0.66667-1.8207-1-3.1672-1h-6.2017v14h6.2207zm-0.82196-8h-3.3987v-4h3.4367c0.91139 0 1.557 0.15686 1.9747 0.47059 0.37975 0.29412 0.58861 0.78431 0.58861 1.451 0 0.72549-0.20886 1.2549-0.58861 1.5882-0.39873 0.31373-1.0633 0.4902-2.0127 0.4902zm0.52612 6h-3.9249v-4h3.9855c1.052 0 1.8208 0.16216 2.3064 0.48649 0.46532 0.32432 0.70809 0.84685 0.70809 1.5856 0 0.72072-0.3237 1.2252-0.9711 1.5495-0.50578 0.25225-1.2139 0.37838-2.104 0.37838z" fill-rule="nonzero" stroke-width=".35"></path>
+                    </g>
+                </svg>
+            </span>
+            <span id="ubb_url" class="comment_icon" title="添加链接(Ctrl + K)" alt="链接">
+                <svg class="comment_svg comment_svg_stroke" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <g fill-rule="evenodd">
+                        <g transform="translate(4 4)" fill-rule="nonzero" stroke-width=".4">
+                            <path d="m6.304 9.696c-0.288-0.288-0.512-0.608-0.704-0.992-0.16-0.32-0.032-0.704 0.288-0.864 0.32-0.16 0.704-0.032 0.864 0.288 0.128 0.224 0.256 0.448 0.448 0.64 0.928 0.928 2.432 0.928 3.36 0l3.36-3.328c0.928-0.928 0.928-2.432 0-3.36s-2.432-0.928-3.36 0l-2.272 2.272c-0.256 0.256-0.64 0.256-0.896 0-0.256-0.256-0.256-0.64 0-0.896l2.272-2.272c1.44-1.44 3.744-1.44 5.184 0 1.44 1.44 1.44 3.744 0 5.184l-3.36 3.296c-0.704 0.704-1.632 1.088-2.592 1.088-0.928 0-1.856-0.352-2.592-1.056z"></path>
+                            <path d="m3.776 15.808c-0.992 0-1.888-0.384-2.592-1.056-1.44-1.44-1.44-3.744 0-5.184l3.328-3.328c1.44-1.44 3.744-1.44 5.184 0 0.288 0.288 0.544 0.64 0.736 1.024 0.16 0.32 0 0.704-0.32 0.864-0.32 0.16-0.704 0-0.864-0.32-0.128-0.256-0.288-0.48-0.48-0.672-0.928-0.928-2.432-0.928-3.36 0l-3.296 3.328c-0.928 0.928-0.928 2.432 0 3.36 0.448 0.448 1.056 0.704 1.664 0.704 0.608 0 1.248-0.256 1.664-0.704l2.112-2.112c0.256-0.256 0.64-0.256 0.896 0s0.256 0.64 0 0.896l-2.112 2.112c-0.672 0.704-1.568 1.088-2.56 1.088z"></path>
+                        </g>
+                    </g>
+                </svg>
+            </span>
+            <span id="ubb_code" class="comment_icon" title="添加代码(Ctrl + `)" alt="代码">
+                <svg class="comment_svg comment_svg_stroke" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <g fill-rule="evenodd">
+                        <g transform="translate(16 6)" stroke-linecap="round" stroke-width="2">
+                            <line x1=".5" x2="4.5" y1=".7" y2="6.3"></line>
+                            <line transform="translate(2.5 9.1) scale(1 -1) translate(-2.5 -9.1)" x1=".5" x2="4.5" y1="6.3" y2="11.9"></line>
+                        </g>
+                        <g transform="translate(3 6.1)" stroke-linecap="round" stroke-width="2">
+                            <line transform="translate(2.5 3.5) scale(-1 1) translate(-2.5 -3.5)" x1=".5" x2="4.5" y1=".7" y2="6.3"></line>
+                            <line transform="translate(2.5 9.1) scale(-1) translate(-2.5 -9.1)" x1=".5" x2="4.5" y1="6.3" y2="11.9"></line>
+                        </g>
+                        <path transform="translate(12 12.5) scale(1 -1) translate(-12 -12.5)" d="m10.778 7.1249c0.50008-0.11366 0.9978 0.16911 1.1643 0.64128l0.032406 0.11223 2 8.8c0.1224 0.53855-0.21496 1.0744-0.75351 1.1968-0.50008 0.11366-0.9978-0.16911-1.1643-0.64128l-0.032406-0.11223-2-8.8c-0.1224-0.53855 0.21496-1.0744 0.75351-1.1968z" fill-rule="nonzero" stroke-width=".25"></path>
+                    </g>
+                </svg>
+            </span>
+            <span id="ubb_quote" class="comment_icon" title="添加引用(Ctrl + Q)" alt="引用">
+                <svg class="comment_svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <g fill-rule="evenodd">
+                        <g transform="translate(5 4)" fill-rule="nonzero" stroke-width=".25">
+                            <path d="m5.0013 15v-5.2702h-2.8008c-0.13413-3.3762 1.2004-6.2143 4.0009-8.5135l-1.2-1.2163c-3.335 2.2996-5.0013 5.8119-5.0013 10.54v4.4595h5.0013-1.285e-5zm8.7987 0v-5.2702h-2.8008c-0.13453-3.3762 1.2-6.2143 4.0009-8.5135l-1.2-1.2163c-3.335 2.2996-5.0013 5.8119-5.0013 10.54v4.4595h5.0013-1.28e-5z"></path>
+                        </g>
+                    </g>
+                </svg>
+            </span>
+            <span id="ubb_img" class="comment_icon" alt="图片" title="上传图片(Ctrl + I)">
+                <svg class="comment_svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <g fill-rule="evenodd">
+                        <g transform="translate(3 3.8)" fill-rule="nonzero">
+                            <path d="m14.1 0.58235h-11.2c-1.32 0-2.4 1.0482-2.4 2.3294v10.871c0 1.2812 1.08 2.3294 2.4 2.3294h11.2c1.32 0 2.4-1.0482 2.4-2.3294v-10.871c0-1.2812-1.08-2.3294-2.4-2.3294zm0.7 13.569-3.63-3.4165 1.33-1.2909c0.21-0.20382 0.59-0.20382 0.8 0l1.6 1.5529v2.7856c0 0.13588-0.04 0.26206-0.1 0.36882zm-11.9-12.016h11.2c0.44 0 0.8 0.34941 0.8 0.77647v5.8915l-0.47-0.45618c-0.84-0.825-2.22-0.825-3.07 0l-1.35 1.3103-2.39-2.2421c-0.85-0.825-2.22-0.825-3.05-0.019412l-2.48 2.2615v-6.7456c0.01-0.42706 0.37-0.77647 0.81-0.77647zm-0.8 11.647v-1.9897l3.6-3.2806c0.21-0.20382 0.58-0.21353 0.81 0.0097059l6.43 6.0371h-10.04c-0.44 0-0.8-0.33971-0.8-0.77647z"></path>
+                            <ellipse cx="10.5" cy="6.4059" rx="1" ry="1"></ellipse>
+                        </g>
+                    </g>
+                </svg>
+            </span>
+        </div>
+    </div>
+    <div style="display:none">
+        <span id="comment_edit_id"></span>
+        <span id="span_parentcomment_id"></span>
+        <span id="span_parent_id"></span>
+        <span id="span_comment_replyto"></span>
+        <span id="span_comment_posted"></span>
+        <span id="span_current_user_id">cfe49caf-3837-4ca6-a0cd-08d8ae5f7194</span>
+    </div>
+    <textarea id="tbCommentBody" placeholder="支持 Markdown"></textarea><div class="OwO" onclick="load_face(this)"><div class="OwO-logo"><span>OωO<space><space>表情</space></space></span></div></div>
+    <div id="tbCommentBodyPreview" class="feedbackCon" style="display: none">
+        <img src="http://pic.cnblogs.com/avatar/simple_avatar.gif" style="float: left; width: 50px; height: 50px; margin: 10px 10px 10px 0px; border-radius: 50%;" class="comment_avatar"><div id="tbCommentBodyPreviewBody" class="blog_comment_body comment_preview cnblogs-markdown"></div>
+    </div>
+    <div class="commentbox_footer">
+        <span>&nbsp;</span>
+        <span href="javascript:void(0)" id="ubb_auto_completion" class="comment_option">
+            <svg style="display: none" id="comment_auto_completion_on" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2"><path d="M406.724 908.504c-89.02 0-157.885-32.319-206.594-96.957-49.549-64.639-73.903-155.795-73.903-274.299 0-116.017 24.354-206.345 73.903-270.155 48.71-63.81 117.574-95.3 206.594-95.3h19.316l-7.559 72.925h-3.359c-65.505 0-115.054 25.69-150.326 77.069-35.272 50.55-52.908 122.647-52.908 215.461 0 94.472 17.636 168.226 52.908 220.434 35.272 51.379 84.82 77.897 150.326 77.897h3.36l7.558 72.925h-19.316zm266.548 0c89.02 0 157.885-32.319 206.594-96.957 49.55-64.639 73.904-155.795 73.904-274.299 0-116.017-24.355-206.345-73.904-270.155-48.709-63.81-117.573-95.3-206.594-95.3h-19.315l7.558 72.925h3.36c65.505 0 115.054 25.69 150.326 77.069 35.272 50.55 52.908 122.647 52.908 215.461 0 94.472-17.636 168.226-52.908 220.434-35.272 51.379-84.821 77.897-150.327 77.897h-3.359l-7.558 72.925h19.315zm-94.068-65.897c0 31.514.854 54.433 1.708 68.758 1.709 14.325 3.417 25.784 6.835 34.38 2.563 8.594 6.834 14.324 12.814 20.054 5.126 5.73 14.523 11.46 27.337 17.189v34.38H451.914v-34.38c17.086-7.162 29.046-15.757 35.026-24.352 5.126-10.027 9.398-22.92 11.106-38.676 1.709-17.19 2.563-42.974 2.563-77.353V238.109c0-32.947-.854-55.866-1.709-71.623-1.708-14.325-4.271-25.784-6.834-32.947-3.417-8.595-7.689-15.757-12.814-20.054-5.126-5.73-14.523-10.027-27.338-17.19V61.916h175.984v34.38c-11.96 5.73-21.357 11.459-26.483 15.756-5.125 5.73-9.397 11.46-12.814 20.055-3.417 7.162-5.98 18.622-6.834 34.379-1.709 15.757-2.563 38.676-2.563 71.623v604.498z" fill-rule="nonzero"></path></svg>
+            <svg id="comment_auto_completion_off" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2"><path d="M242.96 223.172l59.627 58.009c-14.277 10.773-26.874 24.032-37.791 40.606-35.272 50.55-52.908 122.647-52.908 215.461 0 94.472 17.636 168.226 52.908 220.434 35.272 51.379 84.82 77.897 150.326 77.897h3.36l7.558 72.925h-19.316c-89.02 0-157.885-32.319-206.594-96.957-49.549-64.639-73.903-155.795-73.903-274.299 0-116.017 24.354-206.345 73.903-270.155 12.597-16.574 26.874-31.49 42.83-43.921zm36.952-23.204c36.112-19.06 78.943-28.175 126.812-28.175h19.316l-7.559 72.925h-3.359c-27.714 0-52.908 4.144-74.743 14.088l-60.467-58.838zM805.123 770.94l60.466 58.01c-47.869 53.036-111.695 79.554-192.317 79.554h-19.315l7.558-72.925h3.36c59.626 0 105.816-21.546 140.248-64.638zm23.515-37.29c26.034-49.723 39.47-115.19 39.47-196.402 0-92.814-17.635-164.91-52.907-215.461-35.272-51.38-84.821-77.069-150.327-77.069h-3.359l-7.558-72.925h19.315c89.02 0 157.885 31.49 206.594 95.3 49.55 63.81 73.904 154.138 73.904 270.155 0 108.56-20.996 194.744-62.146 257.725l-62.986-61.324zM500.609 474.465l78.595 75.92v292.222c0 31.514.854 54.433 1.708 68.758 1.709 14.325 3.417 25.784 6.835 34.38 2.563 8.594 6.834 14.324 12.814 20.054 5.126 5.73 14.523 11.46 27.337 17.189v34.38H451.914v-34.38c17.086-7.162 29.046-15.757 35.026-24.352 5.126-10.027 9.398-22.92 11.106-38.676 1.709-17.19 2.563-42.974 2.563-77.353V474.465zm0-60.164V238.11c0-32.947-.854-55.866-1.709-71.623-1.708-14.325-4.271-25.784-6.834-32.947-3.417-8.595-7.689-15.757-12.814-20.054-5.126-5.73-14.523-10.027-27.338-17.19v-34.38h175.984v34.38c-11.96 5.73-21.357 11.459-26.483 15.756-5.125 5.73-9.397 11.46-12.814 20.055-3.417 7.162-5.98 18.622-6.834 34.379-1.709 15.757-2.563 38.676-2.563 71.623v253.545l-78.595-77.353z"></path><path d="M153.103 132.024l805.45 783.706-44.277 45.505-805.45-783.706z"></path></svg>
+            <span class="inline_middle">自动补全</span>
+        </span>
+    </div>
+</div>
+<p id="commentbox_opt">
+    <input id="btn_comment_submit" type="button" class="comment_btn" title="提交评论(Ctrl + Enter)" value="提交评论">
+    <span id="span_comment_canceledit" style="display:none"><a href="javascript:void(0);" onclick="return CancelCommentEdit()">不改了</a></span>
+    <a href="javascript:void(0);" onclick="return account.logout();">退出</a>
+            <a id="commentbox_opt_sub" href="javascript:void(0);" title="订阅后有新评论时会邮件通知您" onclick="commentManager.Subscribe()">订阅评论</a>
+            <a href="https://www.cnblogs.com/hibna-blog/" target="_blank">我的博客</a>
+</p>
+<div id="tip_comment2" style="color:Red"></div>
+<p>[Ctrl+Enter快捷键提交]</p>
+<script>var commentEditor = initCommentEditor("tbCommentBody");</script>
+
+</div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"><a href="https://www.aliyun.com/activity/daily/bestoffer?userCode=swh7dvlt" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-阿里云-cps&#39;)">【推荐】阿里云爆品销量榜单出炉，精选爆款产品低至0.55折</a><br><a href="https://brands.cnblogs.com/huawei" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-华为专区&#39;)">【推荐】7大类400多种组件，HarmonyOS鸿蒙三方库来了，赶紧收藏！</a><br><a href="http://www.uccpsoft.com/index.htm" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-ucancode&#39;)">【推荐】大型组态、工控、仿真、CAD\GIS 50万行VC++源码免费下载!</a><br><a href="http://www.moojnn.com/?source=bokeyuan" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-魔镜&#39;)">【推荐】限时秒杀！国云大数据魔镜，企业级云分析平台</a><br></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card" style="">
+        <div id="div-gpt-ad-1592365906576-0" style="width: 300px; height: 250px;" data-google-query-id="CNPXpfC9xvACFVIFKgodt10DSg"><div id="google_ads_iframe_/1090369/C1_0__container__" style="border: 0pt none;"><iframe id="google_ads_iframe_/1090369/C1_0" title="3rd party ad content" name="google_ads_iframe_/1090369/C1_0" width="300" height="250" scrolling="no" marginwidth="0" marginheight="0" frameborder="0" data-google-container-id="1" data-load-complete="true" style="border: 0px; vertical-align: bottom;" src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/saved_resource.html"></iframe></div></div>
+    </div>
+    <div id="under_post_card1"><div class="under-post-card"><b>园子动态</b>：<br>· <a href="https://www.cnblogs.com/cmt/p/14585828.html" target="_blank">致园友们的一封检讨书：都是我们的错</a><br>· <a href="https://www.cnblogs.com/cmt/p/14595262.html" target="_blank">数据库实例 CPU 100% 引发全站故障</a><br>· <a href="https://www.cnblogs.com/cmt/p/14217355.html" target="_blank">发起一个开源项目：博客引擎 fluss</a><br></div></div>
+    <div id="cnblogs_c2" class="under-post-card" style="">
+        <div id="div-gpt-ad-1592366332455-0" style="width: 468px; height: 60px;" data-google-query-id="CNTXpfC9xvACFVIFKgodt10DSg"><div id="google_ads_iframe_/1090369/C2_0__container__" style="border: 0pt none;"><iframe id="google_ads_iframe_/1090369/C2_0" title="3rd party ad content" name="google_ads_iframe_/1090369/C2_0" width="468" height="60" scrolling="no" marginwidth="0" marginheight="0" frameborder="0" data-google-container-id="2" data-load-complete="true" style="border: 0px; vertical-align: bottom;" src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/saved_resource(1).html"></iframe></div></div>
+    </div>
+    <div id="under_post_card2"><div class="itnews under-post-card">
+    <b>最新新闻</b>：
+    <br>
+ ·          <a href="https://news.cnblogs.com/n/693790/" target="_blank">货拉拉打车虽香 但涉嫌违规载客</a>
+        <br>
+ ·          <a href="https://news.cnblogs.com/n/693789/" target="_blank">咖啡之后，陆正耀盯上小面</a>
+        <br>
+ ·          <a href="https://news.cnblogs.com/n/693788/" target="_blank">三年累计亏损超过1亿元 奈雪卷不动了？</a>
+        <br>
+ ·          <a href="https://news.cnblogs.com/n/693787/" target="_blank">4500万知识教信徒、毛利90% 樊登读书3年赚了50亿？</a>
+        <br>
+ ·          <a href="https://news.cnblogs.com/n/693786/" target="_blank">Netflix知道自己的敌人是谁</a>
+        <br>
+    » <a href="https://news.cnblogs.com/" title="IT 新闻" target="_blank">更多新闻...</a>
+</div></div>
+    <div id="HistoryToday" class="under-post-card">
+<b>历史上的今天：</b>
+<br>
+
+2019-12-19    <a href="https://www.cnblogs.com/wkfvawl/p/12066862.html">人工智能技术导论——几种结构化知识表示及推理过程</a>
+    <br>
+2019-12-19    <a href="https://www.cnblogs.com/wkfvawl/p/12066647.html">人工智能技术导论——博弈树搜索</a>
+    <br>
+</div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+	<div id="sideBar">
+		<!--end: sideBarMain -->
+	<div id="sidebar_scroller" class="catListPostArchive sidebar-block stuckMenu" style="width: 320px; position: relative; top: 0px;"><h3 class="catListTitle">导航目录</h3><ul class="nav"><li class="scroller-offset1"><a href="https://www.cnblogs.com/wkfvawl/p/12066647.html#scroller-0">一、博弈树的概念</a></li><li class="scroller-offset1"><a href="https://www.cnblogs.com/wkfvawl/p/12066647.html#scroller-1">二、极小极大值分析法</a></li><li class="scroller-offset1"><a href="https://www.cnblogs.com/wkfvawl/p/12066647.html#scroller-2">三、α-β剪枝技术</a></li></ul></div></div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer"><a href="https://www.cnblogs.com/wkfvawl/p/12066647.html#navigator" class="upToNav"></a>
+		<!--done-->
+Copyright © 2021 王陸
+<br><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    <div id="page_end_html">
+        <!--代码复制-->
+<script src="https://cdn.bootcss.com/clipboard.js/2.0.4/clipboard.min.js"></script>
+
+<!--主题-->
+<script src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/jstheme2.js.下载"></script>
+
+<!--scrollTo-->
+<script src="https://cdn.bootcss.com/jquery-scrollTo/2.1.2/jquery.scrollTo.js"></script>
+
+<!--owo表情-->
+<script src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/owo.js.下载"></script>
+<link rel="stylesheet" href="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/owo.css">
+
+<!-- import Vue.js -->
+<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+
+<!--鼠标特效-->
+<script src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/mouse-click.js.下载"></script>
+<canvas width="1777" height="841" style="position: fixed; left: 0px; top: 0px; z-index: 2147483647; pointer-events: none;"></canvas>
+
+
+<style>
+        #cnblogs_c1,
+        #cnblogs_c2,
+        #ad_t2,
+        #opt_under_post
+        {
+            display: none !important;
+        }
+        .itnews,
+        .c_ad_block
+        {
+            display: none !important;
+        }
+</style>
+
+<div id="jsi-flying-fish-container" class=""><canvas width="1519" height="154"></canvas></div>
+  <script src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/fishb.js.下载"></script>
+    </div><iframe style="border: 0px; width: 0px; height: 0px; display: none;" src="./人工智能技术导论——博弈树搜索 - 王陸 - 博客园_files/saved_resource(2).html"></iframe><canvas width="1536" height="722" style="position: fixed; left: 0px; top: 0px; z-index: 2147483647; pointer-events: none;"></canvas>
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjthNV5gfdfUAiu7A7pgNhOivsERYZ_vkUWgLhbqQgKvO4AD_k3oOlwblZqw7CsiSbVP-59SGvHSFcHmjQLGAKG3PGsOl0v0pfQR7SQrs692mBqAdfZNqPkFXQA9BdYjDE907kBg-ki0JoZR2wBzRqi07IDqF_P3kt1l8CLR2Y-jpQ">
+
+
+<script type="text/javascript">window['__document_write_ajax_callbacks__']['9']();</script><script type="text/javascript">window['__document_write_ajax_callbacks__']['4']();</script><script type="text/javascript">
+
+    // 设置公告
+        var news = [
+'立个flag，五月份回顾完java基础！ '
+]
+    // 设置博客信息
+    var myprofile = [{
+        blogName: "王陸",
+        blogAvatar: "https://pic.cnblogs.com/avatar/1358881/20200325221352.png",
+        blogSign: "",
+        //blogFollow: "follow('30807ee3-3273-4cff-72df-08d619358b99')",
+        QQ: "",
+        Github: "",
+        WeChat: "https://images.cnblogs.com/cnblogs_com/wkfvawl/1474765/t_200126151417weixin.png?a=1580128558925"
+    }];
+
+    // 设置首页轮播
+    var mybanner = [
+
+        {
+            url: "",
+            img: "https://images.cnblogs.com/cnblogs_com/wkfvawl/1543927/o_200131100913timg.jpg",
+            title: "2019年终总结"
+        },
+               {
+            url: "https://www.cnblogs.com/wkfvawl/p/9940398.html",
+            img: "https://images.cnblogs.com/cnblogs_com/wkfvawl/1543927/o_200131102317hh.jpg",
+            title: "计算机专业学习资料总结（~持续更新中）"
+        },
+        {
+            url: "https://www.cnblogs.com/wkfvawl/p/11852199.html",
+            img: "https://www.kanjiantu.com/images/2019/07/05/post2b40b83305f79d463.png",
+            title: "计算机专业常用网站集合"
+        },
+
+    ];
+
+    // 设置导航栏扩展
+
+    var mynav = [{
+            id: "blog_nav_cnblogs",
+            url: "https://home.cnblogs.com",
+            title: "园子"
+        },
+        {
+            id: "blog_nav_maintain",
+            url: "https://www.cnblogs.com/wkfvawl/p/9365052.html",
+            title: "维护"
+        },
+
+        {
+            id: "blog_nav_ing",
+            url: "https://ing.cnblogs.com/",
+            title: "闪存"
+        },
+               {
+            id: "blog_nav_music",
+            url: "https://i.cnblogs.com/diaries",
+            title: "日记"
+        }
+    ];
+    loadNewsinfo(news); //公告
+    setFavio(myprofile); // 网页tab图像
+    loadThemeColor(); //导入主题颜色
+    extendNav(mynav); // 导航栏扩展
+   // loadBanner(mybanner); //首页轮播
+    setPostSideBar(); //侧边栏目录
+    loadMobileContent(); //移动端目录功能栏
+    blankTarget(); //文章链接新窗口打开
+    //copyCode(); //代码块复制
+    tableScorll(); //表格滚动
+    mymd(); //自定义语法
+    //ninghtTip(); //夜间模式提醒
+    owoEmoji(); //owo表情插件
+    myscroll();
+</script><script type="text/javascript">getFollowStatus('b211221e-9163-4e39-a89b-08d5866282ce');</script></body></html>

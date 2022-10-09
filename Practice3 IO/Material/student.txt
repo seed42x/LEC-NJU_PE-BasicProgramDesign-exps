@@ -1,0 +1,5 @@
+161220034 Mark 17 Shanghai 8.5
+161220035 Martin 17 Kunming 7.4
+161220036 Mary 18 Changsha 7.4
+161220037 Mike 17 Nanjing 8.3
+161220038 Nancy 18 Hangzhou 6.4
